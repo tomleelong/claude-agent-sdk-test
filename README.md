@@ -10,6 +10,9 @@ This repository contains examples showing how to use the Claude Agent SDK to:
 - Maintain multi-turn conversations with `ClaudeSDKClient`
 - Create custom tools using the `@tool` decorator
 - Integrate custom tools via MCP (Model Context Protocol) servers
+- Delegate tasks to specialized subagents
+- Get structured JSON output with schema validation
+- Handle errors gracefully with retry logic
 
 ## Prerequisites
 
@@ -67,6 +70,30 @@ Demonstrates creating custom tools with the `@tool` decorator and integrating th
 python src/custom_tools_agent.py
 ```
 
+### Subagents (`src/subagents_example.py`)
+
+Shows how to delegate tasks to specialized subagents (code reviewer, test writer, doc writer):
+
+```bash
+python src/subagents_example.py
+```
+
+### Structured Output (`src/structured_output_example.py`)
+
+Demonstrates getting validated JSON responses using JSON Schema:
+
+```bash
+python src/structured_output_example.py
+```
+
+### Error Handling (`src/error_handling_example.py`)
+
+Shows patterns for error handling, retry logic, timeouts, and graceful degradation:
+
+```bash
+python src/error_handling_example.py
+```
+
 ## Project Structure
 
 ```
@@ -77,9 +104,12 @@ python src/custom_tools_agent.py
 ├── .env                    # Your local config (not tracked in git)
 ├── src/
 │   ├── __init__.py
-│   ├── simple_agent.py     # Basic query example
-│   ├── conversation_agent.py   # Multi-turn conversation example
-│   └── custom_tools_agent.py   # Custom tools example
+│   ├── simple_agent.py           # Basic query example
+│   ├── conversation_agent.py     # Multi-turn conversation example
+│   ├── custom_tools_agent.py     # Custom tools example
+│   ├── subagents_example.py      # Subagents delegation example
+│   ├── structured_output_example.py  # JSON Schema output example
+│   └── error_handling_example.py # Error handling patterns
 └── .gitignore
 ```
 
@@ -113,6 +143,43 @@ from claude_agent_sdk import tool
 @tool("tool_name", "Description", {"param": str})
 async def my_tool(args: dict) -> dict:
     return {"content": [{"type": "text", "text": "result"}]}
+```
+
+### Subagents
+
+Define specialized agents for different tasks:
+
+```python
+options = ClaudeAgentOptions(
+    agents={
+        "code-reviewer": {
+            "description": "Expert code reviewer",
+            "prompt": "You are a code review specialist...",
+            "tools": ["Read", "Grep"],
+            "model": "sonnet",
+        },
+    }
+)
+```
+
+### Structured Output
+
+Get validated JSON responses using JSON Schema:
+
+```python
+options = ClaudeAgentOptions(
+    output_format={
+        "type": "json_schema",
+        "schema": {
+            "type": "object",
+            "properties": {
+                "summary": {"type": "string"},
+                "score": {"type": "integer", "minimum": 0, "maximum": 100},
+            },
+            "required": ["summary", "score"],
+        },
+    }
+)
 ```
 
 ## Resources
