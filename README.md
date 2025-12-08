@@ -20,7 +20,7 @@ This repository contains examples showing how to use the Claude Agent SDK to:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/claude-agent-sdk-test.git
+   git clone https://github.com/tomleelong/claude-agent-sdk-test.git
    cd claude-agent-sdk-test
    ```
 
@@ -35,10 +35,11 @@ This repository contains examples showing how to use the Claude Agent SDK to:
    pip install -e .
    ```
 
-4. Set your API key:
+4. Configure your API key:
    ```bash
-   export ANTHROPIC_API_KEY='your-api-key-here'
+   cp .env.example .env
    ```
+   Then edit `.env` and add your Anthropic API key.
 
 ## Examples
 
@@ -72,6 +73,8 @@ python src/custom_tools_agent.py
 .
 ├── pyproject.toml          # Project configuration and dependencies
 ├── README.md               # This file
+├── .env.example            # Example environment variables
+├── .env                    # Your local config (not tracked in git)
 ├── src/
 │   ├── __init__.py
 │   ├── simple_agent.py     # Basic query example

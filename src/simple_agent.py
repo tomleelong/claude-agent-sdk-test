@@ -6,6 +6,8 @@ This example shows how to use the query() function for one-off tasks.
 import asyncio
 import os
 
+from decouple import config
+
 from claude_agent_sdk import (
     AssistantMessage,
     ClaudeAgentOptions,
@@ -16,11 +18,15 @@ from claude_agent_sdk import (
 
 async def main() -> None:
     """Run a simple agent query."""
-    # Ensure API key is set
-    if not os.environ.get("ANTHROPIC_API_KEY"):
-        print("Error: ANTHROPIC_API_KEY environment variable is not set.")
-        print("Set it with: export ANTHROPIC_API_KEY='your-api-key'")
+    # Load API key from .env file or environment variable
+    api_key = config("ANTHROPIC_API_KEY", default="")
+    if not api_key:
+        print("Error: ANTHROPIC_API_KEY is not set.")
+        print("Create a .env file with: ANTHROPIC_API_KEY=your-api-key")
         return
+
+    # Set for the SDK to use
+    os.environ["ANTHROPIC_API_KEY"] = api_key
 
     # Configure the agent options
     options = ClaudeAgentOptions(
