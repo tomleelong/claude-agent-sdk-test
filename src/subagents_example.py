@@ -10,6 +10,7 @@ import os
 from decouple import config
 
 from claude_agent_sdk import (
+    AgentDefinition,
     AssistantMessage,
     ClaudeAgentOptions,
     TextBlock,
@@ -29,40 +30,47 @@ async def main() -> None:
     # Set for the SDK to use
     os.environ["ANTHROPIC_API_KEY"] = api_key
 
-    # Define specialized subagents
-    options = ClaudeAgentOptions(
-        system_prompt="You are a project manager that delegates tasks to specialized agents.",
-        agents={
-            "code-reviewer": {
-                "description": "Expert code reviewer. Use for quality and security reviews.",
-                "prompt": """You are a code review specialist. When reviewing code:
+    # Define specialized subagents using AgentDefinition dataclass
+    code_reviewer = AgentDefinition(
+        description="Expert code reviewer. Use for quality and security reviews.",
+        prompt="""You are a code review specialist. When reviewing code:
 - Identify potential bugs and security vulnerabilities
 - Check for performance issues
 - Suggest improvements following best practices
 - Be concise but thorough""",
-                "tools": ["Read", "Grep", "Glob"],
-                "model": "sonnet",
-            },
-            "test-writer": {
-                "description": "Test specialist. Use for writing and analyzing tests.",
-                "prompt": """You are a testing specialist. When working with tests:
+        tools=["Read", "Grep", "Glob"],
+        model="sonnet",
+    )
+
+    test_writer = AgentDefinition(
+        description="Test specialist. Use for writing and analyzing tests.",
+        prompt="""You are a testing specialist. When working with tests:
 - Write comprehensive unit tests using pytest
 - Cover edge cases and error conditions
 - Follow testing best practices
 - Ensure tests are readable and maintainable""",
-                "tools": ["Read", "Write", "Bash"],
-                "model": "sonnet",
-            },
-            "doc-writer": {
-                "description": "Documentation specialist. Use for creating documentation.",
-                "prompt": """You are a documentation specialist. When writing docs:
+        tools=["Read", "Write", "Bash"],
+        model="sonnet",
+    )
+
+    doc_writer = AgentDefinition(
+        description="Documentation specialist. Use for creating documentation.",
+        prompt="""You are a documentation specialist. When writing docs:
 - Write clear, concise documentation
 - Include usage examples
 - Follow Google/NumPy docstring conventions
 - Make documentation accessible to all skill levels""",
-                "tools": ["Read", "Write"],
-                "model": "haiku",
-            },
+        tools=["Read", "Write"],
+        model="haiku",
+    )
+
+    # Configure options with subagents
+    options = ClaudeAgentOptions(
+        system_prompt="You are a project manager that delegates tasks to specialized agents.",
+        agents={
+            "code-reviewer": code_reviewer,
+            "test-writer": test_writer,
+            "doc-writer": doc_writer,
         },
         allowed_tools=["Read", "Write", "Bash", "Grep", "Glob"],
         permission_mode="default",
